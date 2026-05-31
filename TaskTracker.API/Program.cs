@@ -5,6 +5,8 @@ using TaskTracker.API.Services;
 using TaskTracker.API.Extensions;
 using TaskTracker.API.Middleware;
 
+var builder = WebApplication.CreateBuilder(args);
+
 // Configure database context with SQL Server
 builder.Services.AddDbContext<TaskDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TaskTrackerConnection")));

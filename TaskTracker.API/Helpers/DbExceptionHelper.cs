@@ -19,7 +19,7 @@ public static class DbExceptionHelper
             return "A record with the same value already exists.";
         }
 
-        // Foreign key failed (project or user does not exist)
+        // Foreign key failed (e.g. project or user does not exist)
         if (msg.Contains("FOREIGN KEY", StringComparison.OrdinalIgnoreCase) ||
             msg.Contains("REFERENCE", StringComparison.OrdinalIgnoreCase))
         {

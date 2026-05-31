@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Keisha Nalani\\Documents\\GitHub\\PE_Assignment\\TaskTracker.API\\TaskTracker.API.csproj": {}
+    "C:\\Users\\Keisha Nalani\\Documents\\GitHub\\SWE2309441_SWE310_Assignment1\\TaskTracker.API\\TaskTracker.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Keisha Nalani\\Documents\\GitHub\\PE_Assignment\\TaskTracker.API\\TaskTracker.API.csproj": {
+    "C:\\Users\\Keisha Nalani\\Documents\\GitHub\\SWE2309441_SWE310_Assignment1\\TaskTracker.API\\TaskTracker.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Keisha Nalani\\Documents\\GitHub\\PE_Assignment\\TaskTracker.API\\TaskTracker.API.csproj",
+        "projectUniqueName": "C:\\Users\\Keisha Nalani\\Documents\\GitHub\\SWE2309441_SWE310_Assignment1\\TaskTracker.API\\TaskTracker.API.csproj",
         "projectName": "TaskTracker.API",
-        "projectPath": "C:\\Users\\Keisha Nalani\\Documents\\GitHub\\PE_Assignment\\TaskTracker.API\\TaskTracker.API.csproj",
+        "projectPath": "C:\\Users\\Keisha Nalani\\Documents\\GitHub\\SWE2309441_SWE310_Assignment1\\TaskTracker.API\\TaskTracker.API.csproj",
         "packagesPath": "C:\\Users\\Keisha Nalani\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Keisha Nalani\\Documents\\GitHub\\PE_Assignment\\TaskTracker.API\\obj\\",
+        "outputPath": "C:\\Users\\Keisha Nalani\\Documents\\GitHub\\SWE2309441_SWE310_Assignment1\\TaskTracker.API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Keisha Nalani\\AppData\\Roaming\\NuGet\\NuGet.Config"
