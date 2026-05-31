@@ -15,13 +15,13 @@ public class ProjectService : IProjectService {
 
     // Create a new project in the repository
     public Task<Project> CreateProjectAsync(ProjectCreateDto dto) {
-        var project = new Project { Name = dto.Name, Description = dto.Description };
+        var project = new Project { Name = dto.Name, Description = dto.Description, Status = dto.Status, OwnerId = dto.OwnerId };
         return _repo.CreateAsync(project);
     }
 
     // Update an existing project in the repository
     public Task<Project?> UpdateProjectAsync(int id, ProjectUpdateDto dto) {
-        var project = new Project { Name = dto.Name, Description = dto.Description };
+        var project = new Project { Name = dto.Name, Description = dto.Description, Status = dto.Status, OwnerId = dto.OwnerId };
         return _repo.UpdateAsync(id, project);
     }
 
