@@ -165,9 +165,12 @@ function Dashboard() {
     day: "numeric",
   });
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
   return (
     <div>
-      <PageHeader icon="dashboard" title="Dashboard" subtitle={`Welcome back — ${today}`} />
+      <PageHeader icon="dashboard" title="Dashboard" subtitle={`${greeting}, welcome back — ${today}`} />
 
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon="folder" label="Projects" value={stats.totalProjects} tone="blue" />

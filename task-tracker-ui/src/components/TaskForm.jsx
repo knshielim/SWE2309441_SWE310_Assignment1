@@ -206,7 +206,7 @@ function TaskForm({ editingTask, onSuccess, onCancelEdit }) {
                 role="radio"
                 aria-checked={selected}
                 onClick={() => setForm({ ...form, priority: value })}
-                className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                className={`rounded-full border px-3 py-2 text-sm font-semibold transition ${
                   selected
                     ? `${active} ring-2 ring-offset-1 ring-transparent`
                     : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"

@@ -5,10 +5,10 @@ import Icon from "./Icons";
 // ---------------------------------------------------------------------------
 
 export const inputClass = (hasError = false) =>
-  `w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 shadow-xs transition focus:outline-none focus:ring-4 ${
+  `w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 shadow-xs transition focus:outline-none focus:ring-4 ${
     hasError
       ? "border-rose-300 focus:border-rose-400 focus:ring-rose-100"
-      : "border-slate-300 focus:border-blue-500 focus:ring-blue-100"
+      : "border-slate-200 focus:border-blue-300 focus:ring-blue-100"
   }`;
 
 const STATUS_STYLES = {
@@ -26,9 +26,9 @@ const PRIORITY_STYLES = {
 
 // Hex values kept in sync with the pills above, for charts
 export const STATUS_HEX = {
-  "To Do": "#94a3b8",
-  "In Progress": "#3b82f6",
-  Completed: "#10b981",
+  "To Do": "#cdbcaa",
+  "In Progress": "#7c86cf",
+  Completed: "#80ab84",
 };
 
 // ---------------------------------------------------------------------------
@@ -40,12 +40,12 @@ export function PageHeader({ title, subtitle, icon, buttonLabel, onAdd, children
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="flex items-center gap-4">
         {icon && (
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-lg shadow-blue-500/25">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-300 to-pink-300 text-white shadow-md shadow-pink-300/30">
             <Icon name={icon} className="h-6 w-6" />
           </span>
         )}
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h1>
+          <h1 className="text-3xl text-slate-900 sm:text-4xl">{title}</h1>
           {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
         </div>
       </div>
@@ -72,7 +72,7 @@ export function SectionTitle({ children, className = "" }) {
 export function Card({ children, className = "", title, icon, action }) {
   return (
     <div
-      className={`mb-6 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm ${className}`}
+      className={`mb-6 rounded-2xl border border-slate-200/70 bg-white/90 p-6 shadow-sm backdrop-blur-sm ${className}`}
     >
       {(title || action) && (
         <div className="mb-4 flex items-center justify-between gap-2">
@@ -104,7 +104,7 @@ export function Panel({ children, className = "" }) {
 
 const BUTTON_VARIANTS = {
   primary:
-    "bg-blue-600 text-white shadow-sm shadow-blue-600/20 hover:bg-blue-700 focus-visible:ring-blue-200",
+    "bg-blue-500 text-white shadow-sm shadow-blue-500/25 hover:bg-blue-600 focus-visible:ring-blue-200",
   secondary:
     "bg-white text-slate-700 border border-slate-300 shadow-xs hover:bg-slate-50 focus-visible:ring-slate-200",
   danger: "bg-rose-600 text-white shadow-sm hover:bg-rose-700 focus-visible:ring-rose-200",
@@ -112,8 +112,8 @@ const BUTTON_VARIANTS = {
 };
 
 const BUTTON_SIZES = {
-  sm: "px-2.5 py-1.5 text-xs gap-1.5",
-  md: "px-4 py-2 text-sm gap-2",
+  sm: "px-3 py-1.5 text-xs gap-1.5",
+  md: "px-5 py-2.5 text-sm gap-2",
 };
 
 export function Button({
@@ -131,7 +131,7 @@ export function Button({
     <button
       type={type}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center rounded-lg font-semibold transition focus:outline-none focus-visible:ring-4 disabled:cursor-not-allowed disabled:opacity-60 ${BUTTON_VARIANTS[variant]} ${BUTTON_SIZES[size]} ${className}`}
+      className={`inline-flex items-center justify-center rounded-full font-bold transition focus:outline-none focus-visible:ring-4 disabled:cursor-not-allowed disabled:opacity-60 ${BUTTON_VARIANTS[variant]} ${BUTTON_SIZES[size]} ${className}`}
       {...rest}
     >
       {loading ? (

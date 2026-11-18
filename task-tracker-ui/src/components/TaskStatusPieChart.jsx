@@ -3,8 +3,8 @@ import { STATUS_HEX } from "./PageUI";
 
 const tooltipStyle = {
   borderRadius: 12,
-  border: "1px solid #e2e8f0",
-  boxShadow: "0 10px 15px -3px rgb(15 23 42 / 0.08)",
+  border: "1px solid #e9e0d5",
+  boxShadow: "0 10px 15px -3px rgb(89 74 64 / 0.10)",
   fontSize: 13,
 };
 
@@ -31,7 +31,7 @@ function TaskStatusPieChart({ data, total }) {
               stroke="none"
             >
               {data.map((entry) => (
-                <Cell key={entry.name} fill={STATUS_HEX[entry.name] || "#cbd5e1"} />
+                <Cell key={entry.name} fill={STATUS_HEX[entry.name] || "#d8cbbc"} />
               ))}
             </Pie>
             <Tooltip contentStyle={tooltipStyle} />

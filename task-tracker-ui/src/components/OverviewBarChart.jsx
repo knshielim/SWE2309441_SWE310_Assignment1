@@ -1,11 +1,11 @@
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts";
 
-const BAR_COLORS = ["#3b82f6", "#ec4899", "#8b5cf6"];
+const BAR_COLORS = ["#7c86cf", "#df8ca2", "#b39bd8"];
 
 const tooltipStyle = {
   borderRadius: 12,
-  border: "1px solid #e2e8f0",
-  boxShadow: "0 10px 15px -3px rgb(15 23 42 / 0.08)",
+  border: "1px solid #e9e0d5",
+  boxShadow: "0 10px 15px -3px rgb(89 74 64 / 0.10)",
   fontSize: 13,
 };
 
@@ -15,10 +15,10 @@ function OverviewBarChart({ data }) {
     <div className="h-64 min-h-[256px] min-w-0">
       <ResponsiveContainer width="100%" height="100%" minWidth={0}>
         <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-          <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
-          <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: "#94a3b8", fontSize: 12 }} />
-          <Tooltip cursor={{ fill: "#f8fafc" }} contentStyle={tooltipStyle} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#efe6da" vertical={false} />
+          <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fill: "#8e7d6d", fontSize: 12 }} />
+          <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: "#b5a493", fontSize: 12 }} />
+          <Tooltip cursor={{ fill: "#f8f2ea" }} contentStyle={tooltipStyle} />
           <Bar dataKey="value" name="Count" radius={[8, 8, 0, 0]} maxBarSize={48}>
             {data.map((entry, i) => (
               <Cell key={entry.name} fill={BAR_COLORS[i % BAR_COLORS.length]} />
