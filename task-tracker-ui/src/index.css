@@ -1,12 +1,140 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Nunito", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+
+  /* Cozy palette: oat neutrals, dusty periwinkle, soft rose, sage, honey, terracotta */
+  --color-white: #fffdfa;
+
+  --color-slate-50: #fbf8f4;
+  --color-slate-100: #f4eee6;
+  --color-slate-200: #e9e0d5;
+  --color-slate-300: #d8cbbc;
+  --color-slate-400: #b5a493;
+  --color-slate-500: #8e7d6d;
+  --color-slate-600: #706053;
+  --color-slate-700: #594a40;
+  --color-slate-800: #443830;
+  --color-slate-900: #322822;
+
+  --color-blue-50: #f3f4fc;
+  --color-blue-100: #e6e9f9;
+  --color-blue-200: #cfd5f2;
+  --color-blue-300: #b2bbe9;
+  --color-blue-400: #949fdc;
+  --color-blue-500: #7c86cf;
+  --color-blue-600: #666fbd;
+  --color-blue-700: #555c9f;
+  --color-blue-800: #484d80;
+  --color-blue-900: #3e4268;
+
+  --color-pink-50: #fdf5f6;
+  --color-pink-100: #fae8ec;
+  --color-pink-200: #f4d1d9;
+  --color-pink-300: #ebb1bf;
+  --color-pink-400: #df8ca2;
+  --color-pink-500: #cf6d88;
+  --color-pink-600: #b85671;
+  --color-pink-700: #9a465d;
+
+  --color-emerald-50: #f1f7f1;
+  --color-emerald-100: #e1eee1;
+  --color-emerald-200: #c5dcc6;
+  --color-emerald-300: #a2c5a4;
+  --color-emerald-400: #80ab84;
+  --color-emerald-500: #67946c;
+  --color-emerald-600: #527a57;
+  --color-emerald-700: #436147;
+
+  --color-amber-50: #fdf7ec;
+  --color-amber-100: #faecd1;
+  --color-amber-200: #f3d8a5;
+  --color-amber-300: #ebbf73;
+  --color-amber-400: #e2a64f;
+  --color-amber-500: #d08d38;
+  --color-amber-600: #b0702a;
+  --color-amber-700: #8c5823;
+  --color-amber-800: #6f4720;
+
+  --color-rose-50: #fcf3f0;
+  --color-rose-100: #f8e3dd;
+  --color-rose-200: #efc6bc;
+  --color-rose-300: #e3a293;
+  --color-rose-400: #d47d6b;
+  --color-rose-500: #c26150;
+  --color-rose-600: #a84c3e;
+  --color-rose-700: #893f34;
+
+  --color-violet-50: #f7f3fb;
+  --color-violet-100: #ece5f6;
+  --color-violet-500: #9c82c7;
+  --color-violet-600: #876cb5;
+  --color-violet-700: #715a98;
+
+  --color-cyan-100: #dfefec;
+  --color-cyan-700: #44726c;
+
+  /* Softer, warmer shadows and rounder corners */
+  --shadow-xs: 0 1px 2px rgb(89 74 64 / 0.04);
+  --shadow-sm: 0 1px 2px rgb(89 74 64 / 0.04), 0 4px 14px -4px rgb(89 74 64 / 0.08);
+  --shadow-md: 0 2px 4px rgb(89 74 64 / 0.04), 0 10px 24px -6px rgb(89 74 64 / 0.12);
+  --shadow-lg: 0 4px 8px rgb(89 74 64 / 0.05), 0 16px 32px -8px rgb(89 74 64 / 0.16);
+  --shadow-2xl: 0 24px 60px -12px rgb(68 56 48 / 0.28);
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.375rem;
+
+  --animate-fade-in: fade-in 150ms ease-out;
+  --animate-pop-in: pop-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  @apply bg-slate-50 text-slate-800 antialiased;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: var(--color-pink-200);
 }
 
 .page-bg {
-  background-color: #f0f7ff;
-  background-image: radial-gradient(#dbeafe 1px, transparent 1px);
-  background-size: 20px 20px;
-  min-height: 100vh;
+  min-height: calc(100vh - 4rem);
+  background-color: #faf6f0;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 0% 0%, rgb(207 213 242 / 0.55), transparent 70%),
+    radial-gradient(ellipse 50% 45% at 100% 5%, rgb(244 209 217 / 0.55), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 50% 100%, rgb(250 236 209 / 0.5), transparent 70%);
+  background-attachment: fixed;
+}
+
+/* Slim scrollbars inside scrollable panels */
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(216 203 188) transparent;
+}
+
+/* Consistent chevron on native selects */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b5a493' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1rem;
+  padding-right: 2.25rem !important;
 }

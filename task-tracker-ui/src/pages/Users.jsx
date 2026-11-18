@@ -4,7 +4,7 @@ import { fetchTasks } from "../API/TaskAPI";
 import UserTable from "../components/UserTable";
 import UserForm from "../components/UserForm";
 import FormModal from "../components/FormModal";
-import { PageHeader, Panel } from "../components/PageUI";
+import { Button, LoadingState, PageHeader, Panel } from "../components/PageUI";
 import SearchBar from "../components/SearchBar";
 
 // Users page
@@ -69,6 +69,11 @@ function Users() {
     setShowForm(false);
   };
 
+  const openCreateForm = () => {
+    setEditingUser(null);
+    setShowForm(true);
+  };
+
   const filteredUsers = users.filter((u) => {
     if (!searchText.trim()) return true;
     const term = searchText.trim().toLowerCase();
@@ -79,35 +84,53 @@ function Users() {
     );
   });
 
+  const totalActive = users.reduce((sum, u) => sum + (u.activeTaskCount ?? 0), 0);
+
   return (
     <div>
       <PageHeader
-        icon="👤"
+        icon="users"
         title="Users"
-        buttonLabel="Add New User"
-        onAdd={() => {
-          setEditingUser(null);
-          setShowForm(true);
-        }}
+        subtitle={
+          loading
+            ? "Loading team..."
+            : `${users.length} team member${users.length === 1 ? "" : "s"} · ${totalActive} active task${totalActive === 1 ? "" : "s"}`
+        }
+        buttonLabel="New user"
+        onAdd={openCreateForm}
       />
 
       <Panel>
-        <p className="text-sm font-medium text-gray-600 mb-2">Search users</p>
         <SearchBar
           value={searchText}
           onChange={setSearchText}
           placeholder="Search by name, email, or role..."
+          className="md:max-w-sm"
         />
       </Panel>
 
       {loading ? (
-        <p className="text-center text-gray-500 py-6">Loading users...</p>
+        <LoadingState label="Loading users..." />
       ) : (
-        <UserTable users={filteredUsers} onDelete={handleDelete} onEdit={handleEdit} />
+        <UserTable
+          users={filteredUsers}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
+          emptyAction={
+            <Button icon="plus" variant="secondary" onClick={openCreateForm}>
+              New user
+            </Button>
+          }
+        />
       )}
 
       {showForm && (
-        <FormModal onClose={handleCancelEdit}>
+        <FormModal
+          onClose={handleCancelEdit}
+          maxWidth="max-w-md"
+          title={editingUser ? "Edit user" : "New user"}
+          subtitle={editingUser ? editingUser.email : "Add a team member who can own projects and tasks."}
+        >
           <UserForm
             editingUser={editingUser}
             onSuccess={handleFormSuccess}

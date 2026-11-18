@@ -1,7 +1,7 @@
-import { ENTITY_STYLE, SUB_STYLE } from "./PageUI";
+import { IconButton, Person, formatDate } from "./PageUI";
 
 // Table row for a single user
-function UserTableItem({ user, idx, onDelete, onEdit }) {
+function UserTableItem({ user, onDelete, onEdit }) {
   // Handle user deletion with confirmation
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to delete user "${user.name}"?`)) {
@@ -9,39 +9,39 @@ function UserTableItem({ user, idx, onDelete, onEdit }) {
     }
   };
 
+  const active = user.activeTaskCount ?? 0;
+
   return (
-    <tr
-      className={`${idx % 2 === 0 ? ENTITY_STYLE.rowEven : ENTITY_STYLE.rowOdd} ${ENTITY_STYLE.rowHover} transition-colors`}
-    >
-      <td className="py-2 px-4 text-gray-600">{user.userId}</td>
-      <td className="py-2 px-4 font-medium text-gray-800">{user.name}</td>
-      <td className="py-2 px-4 text-gray-700">{user.email}</td>
-      <td className="py-1 px-4 whitespace-nowrap">
-        <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-sm">
+    <tr className="transition-colors hover:bg-slate-50/80">
+      <td className="px-4 py-3.5">
+        <Person name={user.name} sub={user.email} />
+      </td>
+      <td className="px-4 py-3.5">
+        <span className="inline-flex whitespace-nowrap rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
           {user.role}
         </span>
       </td>
-      <td className="py-2 px-4">
-        <span className={`inline-flex min-w-7 justify-center px-2 py-0.5 rounded text-sm font-medium ${SUB_STYLE.badge}`}>
-          {user.activeTaskCount ?? 0}
+      <td className="px-4 py-3.5">
+        <span
+          className={`inline-flex min-w-8 items-center justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${
+            active === 0
+              ? "bg-slate-100 text-slate-500"
+              : active >= 5
+              ? "bg-pink-100 text-pink-700"
+              : "bg-blue-50 text-blue-700"
+          }`}
+        >
+          {active}
         </span>
       </td>
-      <td className="py-1 px-4 text-gray-600 whitespace-nowrap">{user.createdAt?.split("T")[0]}</td>
-      <td className="py-2 px-4 text-center flex gap-2 justify-center">
-        <button
-          onClick={() => onEdit(user)}
-          className={`px-3 py-1 rounded text-sm transition ${ENTITY_STYLE.editBtn}`}
-          style={{ width: 60 }}
-        >
-          Edit
-        </button>
-        <button
-          onClick={handleDelete}
-          className={`px-3 py-1 rounded text-sm transition ${SUB_STYLE.deleteBtn}`}
-          style={{ width: 70 }}
-        >
-          Delete
-        </button>
+      <td className="whitespace-nowrap px-4 py-3.5 text-sm text-slate-500">
+        {formatDate(user.createdAt)}
+      </td>
+      <td className="px-4 py-3.5">
+        <div className="flex justify-end gap-1">
+          <IconButton icon="edit" label="Edit user" tone="primary" onClick={() => onEdit(user)} />
+          <IconButton icon="trash" label="Delete user" tone="danger" onClick={handleDelete} />
+        </div>
       </td>
     </tr>
   );

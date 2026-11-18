@@ -6,8 +6,9 @@ import ProjectTable from "../components/ProjectTable";
 import ProjectForm from "../components/ProjectForm";
 import ProjectDetailModal from "../components/ProjectDetailModal";
 import FormModal from "../components/FormModal";
-import { PageHeader, Panel } from "../components/PageUI";
+import { Button, LoadingState, PageHeader, Panel } from "../components/PageUI";
 import SearchBar from "../components/SearchBar";
+import FilterChips from "../components/FilterChips";
 
 // Projects page
 function Projects() {
@@ -17,6 +18,7 @@ function Projects() {
   const [showForm, setShowForm] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState("All");
 
   useEffect(() => {
     fetchData();
@@ -110,7 +112,13 @@ function Projects() {
     setSelectedProject(project);
   };
 
+  const openCreateForm = () => {
+    setEditingProject(null);
+    setShowForm(true);
+  };
+
   const filteredProjects = projects.filter((p) => {
+    if (filterStatus !== "All" && p.projectStatus !== filterStatus) return false;
     if (!searchText.trim()) return true;
     const term = searchText.trim().toLowerCase();
     return (
@@ -119,40 +127,62 @@ function Projects() {
     );
   });
 
+  const statusCounts = projects.reduce((acc, p) => {
+    acc[p.projectStatus] = (acc[p.projectStatus] || 0) + 1;
+    return acc;
+  }, {});
+
   return (
     <div>
       <PageHeader
-        icon="📁"
+        icon="folder"
         title="Projects"
-        buttonLabel="Add New Project"
-        onAdd={() => {
-          setEditingProject(null);
-          setShowForm(true);
-        }}
+        subtitle={
+          loading
+            ? "Loading projects..."
+            : `${projects.length} project${projects.length === 1 ? "" : "s"} · ${statusCounts["Completed"] ?? 0} completed`
+        }
+        buttonLabel="New project"
+        onAdd={openCreateForm}
       />
 
-      <Panel>
-        <p className="text-sm font-medium text-gray-600 mb-2">Search projects</p>
+      <Panel className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <SearchBar
           value={searchText}
           onChange={setSearchText}
           placeholder="Search by name or description..."
+          className="md:max-w-sm md:flex-1"
+        />
+        <FilterChips
+          options={["All", "Not Started", "In Progress", "Completed"]}
+          value={filterStatus}
+          onChange={setFilterStatus}
+          counts={{ All: projects.length, ...statusCounts }}
         />
       </Panel>
 
       {loading ? (
-        <p className="text-center text-gray-500 py-6">Loading projects...</p>
+        <LoadingState label="Loading projects..." />
       ) : (
         <ProjectTable
           projects={filteredProjects}
           onDelete={handleDelete}
           onEdit={handleEdit}
           onViewUpdates={handleViewUpdates}
+          emptyAction={
+            <Button icon="plus" variant="secondary" onClick={openCreateForm}>
+              New project
+            </Button>
+          }
         />
       )}
 
       {showForm && (
-        <FormModal onClose={handleCancelEdit}>
+        <FormModal
+          onClose={handleCancelEdit}
+          title={editingProject ? "Edit project" : "New project"}
+          subtitle={editingProject ? editingProject.name : "Create a project to group related tasks."}
+        >
           <ProjectForm
             editingProject={editingProject}
             onSuccess={handleFormSuccess}
