@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { fetchComments, addComment, deleteComment } from "../API/CommentAPI";
 import { fetchUsers } from "../API/UserAPI";
 import FormModal from "./FormModal";
+import { Alert, Button, StatusBadge, formatDate, inputClass, relativeDue, daysUntil } from "./PageUI";
+import { FeedItem, MetaItem } from "./DetailParts";
+import Icon from "./Icons";
 
 // Function to extract error message
 function getErrorMessage(error) {
@@ -16,6 +19,7 @@ function TaskDetailModal({ task, onClose }) {
   const [userId, setUserId] = useState("");
   const [noteText, setNoteText] = useState("");
   const [loading, setLoading] = useState(true);
+  const [posting, setPosting] = useState(false);
   const [error, setError] = useState("");
 
   // Load comments and users when task changes
@@ -50,6 +54,7 @@ function TaskDetailModal({ task, onClose }) {
     if (!noteText.trim() || !userId) return;
 
     setError("");
+    setPosting(true);
     try {
       const created = await addComment({
         taskId: task.taskId,
@@ -60,6 +65,8 @@ function TaskDetailModal({ task, onClose }) {
       setNoteText("");
     } catch (err) {
       setError(getErrorMessage(err));
+    } finally {
+      setPosting(false);
     }
   };
 
@@ -74,40 +81,83 @@ function TaskDetailModal({ task, onClose }) {
     }
   };
 
+  const getUserName = (id) => users.find((u) => u.userId === id)?.name;
+  const overdue = task.status !== "Completed" && (daysUntil(task.dueDate) ?? 0) < 0;
+
   return (
-    <FormModal onClose={onClose} maxWidth="max-w-2xl">
-      <div className="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full">
-        <h2 className="text-2xl font-bold mb-2 text-gray-800">{task.title}</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          {task.projectName ?? "—"} · {task.status} · {task.priority} priority
-        </p>
-
-        <div className="grid grid-cols-2 gap-3 text-sm mb-6">
-          <div>
-            <span className="font-medium text-gray-700">Assigned to:</span>{" "}
+    <FormModal
+      onClose={onClose}
+      maxWidth="max-w-2xl"
+      title={task.title}
+      subtitle={
+        <span className="inline-flex items-center gap-1.5">
+          <Icon name="folder" className="h-3.5 w-3.5" />
+          {task.projectName ?? "No project"}
+        </span>
+      }
+    >
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <MetaItem label="Status">
+          <StatusBadge value={task.status} />
+        </MetaItem>
+        <MetaItem label="Priority">
+          <StatusBadge value={task.priority} kind="priority" />
+        </MetaItem>
+        <MetaItem label="Assignee">
+          <span className={task.assignedToName ? "font-medium" : "text-slate-400"}>
             {task.assignedToName ?? "Unassigned"}
-          </div>
-          <div>
-            <span className="font-medium text-gray-700">Due date:</span>{" "}
-            {task.dueDate ? task.dueDate.split("T")[0] : "—"}
-          </div>
-        </div>
+          </span>
+        </MetaItem>
+        <MetaItem label="Due date">
+          <span className={overdue ? "font-semibold text-rose-600" : ""}>{formatDate(task.dueDate)}</span>
+          {task.dueDate && task.status !== "Completed" && (
+            <p className={`text-xs ${overdue ? "text-rose-500" : "text-slate-400"}`}>
+              {relativeDue(task.dueDate)}
+            </p>
+          )}
+        </MetaItem>
+      </div>
 
-        {task.description && (
-          <p className="text-gray-600 mb-6 border-l-4 border-gray-200 pl-3">{task.description}</p>
+      {task.description && (
+        <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-slate-600">
+          {task.description}
+        </p>
+      )}
+
+      <div className="mt-6 flex items-center gap-2">
+        <Icon name="message" className="h-4 w-4 text-slate-400" />
+        <h3 className="text-sm font-semibold text-slate-800">Comments &amp; updates</h3>
+        {!loading && (
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+            {comments.length}
+          </span>
         )}
+      </div>
 
-        <h3 className="text-lg font-semibold text-gray-700 mb-3">Comments &amp; Updates</h3>
+      {error && (
+        <div className="mt-3">
+          <Alert>{error}</Alert>
+        </div>
+      )}
 
-        {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
-
-        <form onSubmit={handleAddComment} className="mb-6">
-          <div className="mb-3">
-            <label className="block mb-1 text-sm font-medium">Team member</label>
+      <form
+        onSubmit={handleAddComment}
+        className="mt-3 space-y-3 rounded-xl border border-slate-200 bg-slate-50/60 p-3"
+      >
+        <textarea
+          value={noteText}
+          onChange={(e) => setNoteText(e.target.value)}
+          rows={3}
+          placeholder="Write an update for the team..."
+          className={`${inputClass()} resize-none`}
+        />
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <label className="flex items-center gap-2 whitespace-nowrap text-xs text-slate-500">
+            Posting as
             <select
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
-              className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 border-gray-300"
+              className={`${inputClass()} w-auto py-1.5`}
             >
               {users.map((u) => (
                 <option key={u.userId} value={u.userId}>
@@ -115,50 +165,34 @@ function TaskDetailModal({ task, onClose }) {
                 </option>
               ))}
             </select>
-          </div>
-          <div className="mb-3">
-            <label className="block mb-1 text-sm font-medium">Add a note</label>
-            <textarea
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-              rows={3}
-              placeholder="Write an update for the team..."
-              className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 border-gray-300"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-200 text-blue-800 px-4 py-2 rounded-lg hover:bg-blue-300 font-semibold"
-          >
-            Post Comment
-          </button>
-        </form>
+          </label>
+          <Button type="submit" size="sm" icon="send" loading={posting} disabled={!noteText.trim()}>
+            Post comment
+          </Button>
+        </div>
+      </form>
 
+      <div className="mt-4">
         {loading ? (
-          <p className="text-gray-500 text-sm">Loading comments...</p>
+          <p className="flex items-center gap-2 py-4 text-sm text-slate-500">
+            <Icon name="loader" className="h-4 w-4 animate-spin" /> Loading comments...
+          </p>
         ) : comments.length === 0 ? (
-          <p className="text-gray-500 text-sm">No comments yet. Be the first to add an update.</p>
+          <p className="py-6 text-center text-sm text-slate-500">
+            No comments yet. Be the first to add an update.
+          </p>
         ) : (
-          <div className="space-y-3 max-h-48 overflow-y-auto">
+          <ul className="scroll-thin max-h-80 space-y-3 overflow-y-auto pr-1">
             {comments.map((comment) => (
-              <div key={comment.commentId} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                  <span className="font-medium text-gray-700">
-                    {comment.authorName ?? `User ${comment.userId}`}
-                  </span>
-                  <span>{new Date(comment.createdAt).toLocaleString()}</span>
-                </div>
-                <p className="text-sm text-gray-800">{comment.content}</p>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteComment(comment.commentId)}
-                  className="text-xs text-red-600 mt-2 hover:underline"
-                >
-                  Delete
-                </button>
-              </div>
+              <FeedItem
+                key={comment.commentId}
+                author={comment.authorName ?? getUserName(comment.userId) ?? `User ${comment.userId}`}
+                date={comment.createdAt}
+                content={comment.content}
+                onDelete={() => handleDeleteComment(comment.commentId)}
+              />
             ))}
-          </div>
+          </ul>
         )}
       </div>
     </FormModal>

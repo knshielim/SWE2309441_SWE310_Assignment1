@@ -1,14 +1,7 @@
-import { ENTITY_STYLE, SUB_STYLE } from "./PageUI";
-
-// Status color for projects
-const PROJECT_STATUS_COLOR = {
-  "Not Started": { backgroundColor: "#FFCDD2", color: "#B71C1C" },
-  "In Progress": { backgroundColor: "#BBDEFB", color: "#0D47A1" },
-  Completed: { backgroundColor: "#C8E6C9", color: "#1B5E20" },
-};
+import { IconButton, Person, ProgressBar, StatusBadge, formatDate } from "./PageUI";
 
 // Table row for a single project
-function ProjectTableItem({ project, idx, onDelete, onEdit, onViewUpdates }) {
+function ProjectTableItem({ project, onDelete, onEdit, onViewUpdates }) {
   // Handle project deletion with confirmation
   const handleDelete = () => {
     if (
@@ -20,62 +13,47 @@ function ProjectTableItem({ project, idx, onDelete, onEdit, onViewUpdates }) {
     }
   };
 
+  const percent = project.progressPercent ?? 0;
+  const owner = project.ownerName && project.ownerName !== "Unassigned" ? project.ownerName : null;
+
   return (
-    <tr
-      className={`${idx % 2 === 0 ? ENTITY_STYLE.rowEven : ENTITY_STYLE.rowOdd} ${ENTITY_STYLE.rowHover} transition-colors`}
-    >
-      <td className="py-2 px-4 text-gray-600">{project.projectId}</td>
-      <td className="py-2 px-4 font-medium text-gray-800">{project.name}</td>
-      <td className="py-2 px-4 text-gray-600 max-w-xs">
-        {project.description || "—"}
-      </td>
-      <td className="py-2 px-4 min-w-40">
-        <div className="text-sm text-gray-600 mb-1">
-          {project.completedTasks ?? 0}/{project.totalTasks ?? 0} done
-        </div>
-        <div className="w-full h-2 bg-gray-200 rounded-full">
-          <div
-            className="h-full bg-blue-300 rounded-full"
-            style={{ width: `${project.progressPercent ?? 0}%` }}
-          />
-        </div>
-      </td>
-      <td className="py-1 px-4 whitespace-nowrap">
-        <span
-          className="px-2 py-0.5 rounded text-sm"
-          style={PROJECT_STATUS_COLOR[project.projectStatus] ?? { backgroundColor: "#E0E0E0", color: "#333333" }}
-        >
-          {project.projectStatus ?? "Not Started"}
-        </span>
-      </td>
-      <td className="py-2 px-4">
-        <span className={`px-2 py-0.5 rounded text-sm ${SUB_STYLE.badge}`}>
-          {project.ownerName ?? "Unassigned"}
-        </span>
-      </td>
-      <td className="py-1 px-4 text-gray-600 whitespace-nowrap">{project.createdAt?.split("T")[0]}</td>
-      <td className="py-2 px-4 text-center flex flex-col gap-2 items-center">
+    <tr className="group transition-colors hover:bg-slate-50/80">
+      <td className="px-4 py-3.5">
         <button
+          type="button"
           onClick={() => onViewUpdates(project)}
-          className="bg-blue-100 text-blue-800 px-3 py-1 rounded hover:bg-blue-200 text-sm transition"
-          style={{ width: 70 }}
+          className="text-left text-sm font-semibold text-slate-900 hover:text-blue-700"
         >
-          Update
+          {project.name}
         </button>
-        <button
-          onClick={() => onEdit(project)}
-          className={`px-3 py-1 rounded text-sm transition ${ENTITY_STYLE.editBtn}`}
-          style={{ width: 70 }}
-        >
-          Edit
-        </button>
-        <button
-          onClick={handleDelete}
-          className={`px-3 py-1 rounded text-sm transition ${SUB_STYLE.deleteBtn}`}
-          style={{ width: 70 }}
-        >
-          Delete
-        </button>
+        <p className="mt-0.5 line-clamp-1 max-w-sm text-xs text-slate-500" title={project.description}>
+          {project.description || <span className="italic text-slate-400">No description</span>}
+        </p>
+      </td>
+      <td className="px-4 py-3.5">
+        <div className="mb-1.5 flex items-center justify-between text-xs">
+          <span className="text-slate-500">
+            {project.completedTasks ?? 0}/{project.totalTasks ?? 0} tasks
+          </span>
+          <span className="font-semibold text-slate-700">{percent}%</span>
+        </div>
+        <ProgressBar percent={percent} />
+      </td>
+      <td className="px-4 py-3.5">
+        <StatusBadge value={project.projectStatus ?? "Not Started"} />
+      </td>
+      <td className="px-4 py-3.5">
+        <Person name={owner} />
+      </td>
+      <td className="whitespace-nowrap px-4 py-3.5 text-sm text-slate-500">
+        {formatDate(project.createdAt)}
+      </td>
+      <td className="px-4 py-3.5">
+        <div className="flex justify-end gap-1">
+          <IconButton icon="message" label="Project updates" tone="primary" onClick={() => onViewUpdates(project)} />
+          <IconButton icon="edit" label="Edit project" tone="primary" onClick={() => onEdit(project)} />
+          <IconButton icon="trash" label="Delete project" tone="danger" onClick={handleDelete} />
+        </div>
       </td>
     </tr>
   );

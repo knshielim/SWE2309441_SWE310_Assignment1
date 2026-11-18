@@ -1,39 +1,33 @@
 import UserTableItem from "./UserTableItem";
-import { ENTITY_STYLE } from "./PageUI";
+import { DataTable, EmptyState } from "./PageUI";
+
+const COLUMNS = [
+  { label: "User", className: "min-w-64" },
+  { label: "Role" },
+  { label: "Active Tasks" },
+  { label: "Joined" },
+  { label: "Actions", align: "right" },
+];
 
 // Table to display list of users
-function UserTable({ users, onDelete, onEdit }) {
+function UserTable({ users, onDelete, onEdit, emptyAction }) {
   if (users.length === 0) {
-    return <p className={`text-center py-6 ${ENTITY_STYLE.empty}`}>No users found.</p>;
+    return (
+      <EmptyState
+        icon="users"
+        title="No users found"
+        message="Try a different search, or add a new team member."
+        action={emptyAction}
+      />
+    );
   }
 
   return (
-    <div className={`overflow-x-auto rounded-lg border bg-white ${ENTITY_STYLE.tableWrap}`}>
-      <table className="min-w-full">
-        <thead>
-          <tr className={ENTITY_STYLE.tableHead}>
-            <th className="py-3 px-4 text-left font-semibold">ID</th>
-            <th className="py-3 px-4 text-left font-semibold">Name</th>
-            <th className="py-3 px-4 text-left font-semibold">Email</th>
-            <th className="py-3 px-4 text-left font-semibold">Role</th>
-            <th className="py-3 px-4 text-left font-semibold">Active Tasks</th>
-            <th className="py-3 px-4 text-left font-semibold">Created</th>
-            <th className="py-3 px-4 text-center font-semibold">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user, idx) => (
-            <UserTableItem
-              key={user.userId}
-              user={user}
-              idx={idx}
-              onDelete={onDelete}
-              onEdit={onEdit}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DataTable columns={COLUMNS}>
+      {users.map((user) => (
+        <UserTableItem key={user.userId} user={user} onDelete={onDelete} onEdit={onEdit} />
+      ))}
+    </DataTable>
   );
 }
 

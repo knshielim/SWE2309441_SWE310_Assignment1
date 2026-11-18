@@ -2,22 +2,32 @@ import { useState, useEffect } from "react";
 import { addTask, editTask } from "../API/TaskAPI";
 import { fetchProjects } from "../API/ProjectAPI";
 import { fetchUsers } from "../API/UserAPI";
+import { Alert, Button, Field, inputClass } from "./PageUI";
+
+const EMPTY_FORM = {
+  title: "",
+  description: "",
+  status: "To Do",
+  priority: "Medium",
+  dueDate: "",
+  projectId: "",
+  assignedTo: "",
+};
+
+const PRIORITY_OPTIONS = [
+  { value: "Low", active: "border-slate-400 bg-slate-100 text-slate-800" },
+  { value: "Medium", active: "border-amber-400 bg-amber-50 text-amber-800" },
+  { value: "High", active: "border-rose-400 bg-rose-50 text-rose-700" },
+];
 
 // Form for creating and editing tasks
 function TaskForm({ editingTask, onSuccess, onCancelEdit }) {
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    status: "To Do",
-    priority: "Medium",
-    dueDate: "",
-    projectId: "",
-    assignedTo: "",
-  });
+  const [form, setForm] = useState(EMPTY_FORM);
   const [projects, setProjects] = useState([]);
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
 
   // Load projects and users for dropdowns
   useEffect(() => {
@@ -87,190 +97,137 @@ function TaskForm({ editingTask, onSuccess, onCancelEdit }) {
       assignedTo: form.assignedTo ? parseInt(form.assignedTo) : null,
     };
 
+    setSaving(true);
+    setMessage("");
     try {
       if (editingTask) {
         await editTask(editingTask.taskId, payload);
-        setMessage("Task updated successfully!");
       } else {
         await addTask(payload);
-        setMessage("Task added successfully!");
-        setForm({
-          title: "",
-          description: "",
-          status: "To Do",
-          priority: "Medium",
-          dueDate: "",
-          projectId: "",
-          assignedTo: "",
-        });
+        setForm(EMPTY_FORM);
       }
       onSuccess();
-    } catch (error) {
+    } catch {
       setMessage("Operation failed. Please try again.");
+    } finally {
+      setSaving(false);
     }
   };
 
   // Handle cancel edit
   const handleCancel = () => {
-    setForm({
-      title: "",
-      description: "",
-      status: "To Do",
-      priority: "Medium",
-      dueDate: "",
-      projectId: "",
-      assignedTo: "",
-    });
+    setForm(EMPTY_FORM);
     setErrors({});
     setMessage("");
     onCancelEdit();
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-md p-6 w-full max-w-lg mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
-        {editingTask ? "Edit Task" : "Add New Task"}
-      </h2>
+    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+      {message && <Alert>{message}</Alert>}
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block mb-1 font-medium">Task Title</label>
-          <input
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 border-gray-300"
-            placeholder="e.g. Design homepage layout"
-          />
-          {errors.title && (
-            <p className="text-red-500 text-sm mt-1">{errors.title}</p>
-          )}
-        </div>
+      <Field label="Task title" error={errors.title}>
+        <input
+          name="title"
+          value={form.title}
+          onChange={handleChange}
+          className={inputClass(!!errors.title)}
+          placeholder="e.g. Design homepage layout"
+          autoFocus
+        />
+      </Field>
 
-        <div className="mb-4">
-          <label className="block mb-1 font-medium">
-            Description <span className="text-gray-400">(optional)</span>
-          </label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            rows={2}
-            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 border-gray-300"
-            placeholder="Task details..."
-          />
-        </div>
+      <Field label="Description" optional>
+        <textarea
+          name="description"
+          value={form.description}
+          onChange={handleChange}
+          rows={3}
+          className={`${inputClass()} resize-none`}
+          placeholder="Task details..."
+        />
+      </Field>
 
-        <div className="mb-4">
-          <label className="block mb-1 font-medium">Project</label>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field label="Project" error={errors.projectId}>
           <select
             name="projectId"
             value={form.projectId}
             onChange={handleChange}
-            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 border-gray-300"
+            className={inputClass(!!errors.projectId)}
           >
-            <option value="">-- Select a Project --</option>
+            <option value="">Select a project</option>
             {projects.map((p) => (
               <option key={p.projectId} value={p.projectId}>
                 {p.name}
               </option>
             ))}
           </select>
-          {errors.projectId && (
-            <p className="text-red-500 text-sm mt-1">{errors.projectId}</p>
-          )}
-        </div>
+        </Field>
 
-        <div className="mb-4">
-          <label className="block mb-1 font-medium">
-            Assign To <span className="text-gray-400">(optional)</span>
-          </label>
-          <select
-            name="assignedTo"
-            value={form.assignedTo}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 border-gray-300"
-          >
-            <option value="">-- Unassigned --</option>
+        <Field label="Assign to" optional>
+          <select name="assignedTo" value={form.assignedTo} onChange={handleChange} className={inputClass()}>
+            <option value="">Unassigned</option>
             {users.map((u) => (
               <option key={u.userId} value={u.userId}>
                 {u.name} ({u.role})
               </option>
             ))}
           </select>
-        </div>
+        </Field>
 
-        <div className="mb-4 flex gap-4">
-          <div className="flex-1">
-            <label className="block mb-1 font-medium">Status</label>
-            <select
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-              className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 border-gray-300"
-            >
-              <option value="To Do">To Do</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </div>
-          <div className="flex-1">
-            <label className="block mb-1 font-medium">Priority</label>
-            <select
-              name="priority"
-              value={form.priority}
-              onChange={handleChange}
-              className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 border-gray-300"
-            >
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
-          </div>
-        </div>
+        <Field label="Status">
+          <select name="status" value={form.status} onChange={handleChange} className={inputClass()}>
+            <option value="To Do">To Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </Field>
 
-        <div className="mb-6">
-          <label className="block mb-1 font-medium">
-            Due Date <span className="text-gray-400">(optional)</span>
-          </label>
+        <Field label="Due date" optional>
           <input
             name="dueDate"
             type="date"
             value={form.dueDate}
             onChange={handleChange}
-            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 border-gray-300"
+            className={inputClass()}
           />
-        </div>
+        </Field>
+      </div>
 
-        <div className="flex gap-3">
-          <button
-            type="submit"
-            className="flex-1 bg-blue-200 text-blue-800 py-2 rounded-lg hover:bg-blue-300 font-semibold shadow-sm hover:shadow transition"
-          >
-            {editingTask ? "Save Changes" : "Add Task"}
-          </button>
-          {editingTask && (
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="flex-1 bg-pink-100 text-pink-800 py-2 rounded-lg hover:bg-pink-200 font-semibold border border-pink-200"
-            >
-              Cancel
-            </button>
-          )}
+      <Field label="Priority">
+        <div className="grid grid-cols-3 gap-2" role="radiogroup">
+          {PRIORITY_OPTIONS.map(({ value, active }) => {
+            const selected = form.priority === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                onClick={() => setForm({ ...form, priority: value })}
+                className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                  selected
+                    ? `${active} ring-2 ring-offset-1 ring-transparent`
+                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                }`}
+              >
+                {value}
+              </button>
+            );
+          })}
         </div>
-      </form>
+      </Field>
 
-      {message && (
-        <div
-          className={`mt-4 text-center font-medium ${
-            message.includes("failed") ? "text-red-600" : "text-green-600"
-          }`}
-        >
-          {message}
-        </div>
-      )}
-    </div>
+      <div className="flex justify-end gap-2 border-t border-slate-100 pt-5">
+        <Button variant="secondary" onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" loading={saving}>
+          {editingTask ? "Save changes" : "Create task"}
+        </Button>
+      </div>
+    </form>
   );
 }
 

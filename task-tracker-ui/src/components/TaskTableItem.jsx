@@ -1,21 +1,8 @@
-import { ENTITY_STYLE, SUB_STYLE } from "./PageUI";
-
-// Status color for tasks
-const STATUS_COLOR = {
-  "To Do": { backgroundColor: "#FFCDD2", color: "#B71C1C" },
-  "In Progress": { backgroundColor: "#BBDEFB", color: "#0D47A1" },
-  Completed: { backgroundColor: "#C8E6C9", color: "#1B5E20" },
-};
-
-// Priority color for tasks
-const PRIORITY_COLOR = {
-  Low: { backgroundColor: "#DCEDC8", color: "#33691E" },
-  Medium: { backgroundColor: "#FFE0B2", color: "#E65100" },
-  High: { backgroundColor: "#FFCDD2", color: "#B71C1C" },
-};
+import Icon from "./Icons";
+import { IconButton, Person, StatusBadge, daysUntil, formatDate, relativeDue } from "./PageUI";
 
 // Table row for a single task
-function TaskTableItem({ task, idx, onDelete, onEdit, onView }) {
+function TaskTableItem({ task, onDelete, onEdit, onView }) {
   // Handle task deletion with confirmation
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to delete task "${task.title}"?`)) {
@@ -23,61 +10,75 @@ function TaskTableItem({ task, idx, onDelete, onEdit, onView }) {
     }
   };
 
-  // Check if task is past due
-  const isPastDue =
-    task.dueDate &&
-    task.status !== "Completed" &&
-    new Date(task.dueDate) < new Date(new Date().toDateString());
+  const isCompleted = task.status === "Completed";
+  const days = daysUntil(task.dueDate);
+  const isPastDue = days !== null && days < 0 && !isCompleted;
+  const isDueSoon = days !== null && days >= 0 && days <= 2 && !isCompleted;
 
   return (
-    <tr
-      className={`${idx % 2 === 0 ? ENTITY_STYLE.rowEven : ENTITY_STYLE.rowOdd} ${ENTITY_STYLE.rowHover} transition-colors`}
-    >
-      <td className="py-2 px-4 text-gray-600">{task.taskId}</td>
-      <td className="py-2 px-4 font-medium text-gray-800">{task.title}</td>
-      <td className="py-1 px-4 whitespace-nowrap">
-        <span
-          className="px-2 py-0.5 rounded text-sm"
-          style={STATUS_COLOR[task.status] ?? { backgroundColor: "#E0E0E0", color: "#333333" }}
-        >
-          {task.status}
-        </span>
-      </td>
-      <td className="py-1 px-4">
-        <span
-          className="px-2 py-0.5 rounded text-sm"
-          style={PRIORITY_COLOR[task.priority] ?? { backgroundColor: "#E0E0E0", color: "#333333" }}
-        >
-          {task.priority}
-        </span>
-      </td>
-      <td className={`py-1 px-4 whitespace-nowrap ${isPastDue ? SUB_STYLE.textStrong : "text-gray-700"}`}>
-        {task.dueDate ? task.dueDate.split("T")[0] : "—"}
-      </td>
-      <td className="py-2 px-4 text-gray-700">{task.projectName ?? "—"}</td>
-      <td className="py-2 px-4 text-gray-700">{task.assignedToName ?? "Unassigned"}</td>
-      <td className="py-2 px-4 text-center flex flex-col gap-2 items-center">
+    <tr className="transition-colors hover:bg-slate-50/80">
+      <td className="px-4 py-3.5">
         <button
+          type="button"
           onClick={() => onView(task)}
-          className="bg-blue-100 text-blue-800 px-3 py-1 rounded hover:bg-blue-200 text-sm transition"
-          style={{ width: 70 }}
+          className={`text-left text-sm font-semibold hover:text-blue-700 ${
+            isCompleted ? "text-slate-500 line-through decoration-slate-300" : "text-slate-900"
+          }`}
         >
-          View
+          {task.title}
         </button>
-        <button
-          onClick={() => onEdit(task)}
-          className={`px-3 py-1 rounded text-sm transition ${ENTITY_STYLE.editBtn}`}
-          style={{ width: 70 }}
-        >
-          Edit
-        </button>
-        <button
-          onClick={handleDelete}
-          className={`px-3 py-1 rounded text-sm transition ${SUB_STYLE.deleteBtn}`}
-          style={{ width: 70 }}
-        >
-          Delete
-        </button>
+        {task.description && (
+          <p className="mt-0.5 line-clamp-1 max-w-sm text-xs text-slate-500" title={task.description}>
+            {task.description}
+          </p>
+        )}
+      </td>
+      <td className="px-4 py-3.5">
+        <StatusBadge value={task.status} />
+      </td>
+      <td className="px-4 py-3.5">
+        <StatusBadge value={task.priority} kind="priority" />
+      </td>
+      <td className="whitespace-nowrap px-4 py-3.5 text-sm">
+        {task.dueDate ? (
+          <div>
+            <p className={isPastDue ? "font-semibold text-rose-600" : "text-slate-700"}>
+              {formatDate(task.dueDate)}
+            </p>
+            {!isCompleted && (
+              <p
+                className={`mt-0.5 flex items-center gap-1 text-xs ${
+                  isPastDue ? "text-rose-500" : isDueSoon ? "text-amber-600" : "text-slate-400"
+                }`}
+              >
+                {(isPastDue || isDueSoon) && <Icon name="clock" className="h-3 w-3" />}
+                {relativeDue(task.dueDate)}
+              </p>
+            )}
+          </div>
+        ) : (
+          <span className="text-slate-400">—</span>
+        )}
+      </td>
+      <td className="px-4 py-3.5 text-sm text-slate-700">
+        {task.projectName ? (
+          <span className="inline-flex items-center gap-1.5">
+            <Icon name="folder" className="h-3.5 w-3.5 text-slate-400" />
+            {task.projectName}
+          </span>
+        ) : (
+          <span className="text-slate-400">—</span>
+        )}
+      </td>
+      <td className="px-4 py-3.5">
+        <Person name={task.assignedToName} />
+      </td>
+      <td className="px-4 py-3.5">
+        <div className="flex justify-end gap-1">
+          <IconButton icon="eye" label="View task" tone="primary" onClick={() => onView(task)} />
+          <IconButton icon="edit" label="Edit task" tone="primary" onClick={() => onEdit(task)} />
+          <IconButton icon="trash" label="Delete task" tone="danger" onClick={handleDelete} />
+        </div>
       </td>
     </tr>
   );

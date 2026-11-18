@@ -1,41 +1,41 @@
 import TaskTableItem from "./TaskTableItem";
-import { ENTITY_STYLE } from "./PageUI";
+import { DataTable, EmptyState } from "./PageUI";
+
+const COLUMNS = [
+  { label: "Task", className: "min-w-64" },
+  { label: "Status" },
+  { label: "Priority" },
+  { label: "Due Date" },
+  { label: "Project", className: "min-w-36" },
+  { label: "Assignee", className: "min-w-44" },
+  { label: "Actions", align: "right" },
+];
 
 // Table to display list of tasks
-function TaskTable({ tasks, onDelete, onEdit, onView }) {
+function TaskTable({ tasks, onDelete, onEdit, onView, emptyAction }) {
   if (tasks.length === 0) {
-    return <p className={`text-center py-6 ${ENTITY_STYLE.empty}`}>No tasks found.</p>;
+    return (
+      <EmptyState
+        icon="check"
+        title="No tasks found"
+        message="No tasks match the current filters. Adjust them or add a new task."
+        action={emptyAction}
+      />
+    );
   }
 
   return (
-    <div className={`overflow-x-auto rounded-lg border bg-white ${ENTITY_STYLE.tableWrap}`}>
-      <table className="min-w-full">
-        <thead>
-          <tr className={ENTITY_STYLE.tableHead}>
-            <th className="py-3 px-4 text-left font-semibold">ID</th>
-            <th className="py-3 px-4 text-left font-semibold">Title</th>
-            <th className="py-3 px-4 text-left font-semibold">Status</th>
-            <th className="py-3 px-4 text-left font-semibold">Priority</th>
-            <th className="py-3 px-4 text-left font-semibold">Due Date</th>
-            <th className="py-3 px-4 text-left font-semibold min-w-32">Project</th>
-            <th className="py-3 px-4 text-left font-semibold">Assigned To</th>
-            <th className="py-3 px-4 text-center font-semibold">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map((task, idx) => (
-            <TaskTableItem
-              key={task.taskId}
-              task={task}
-              idx={idx}
-              onDelete={onDelete}
-              onEdit={onEdit}
-              onView={onView}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DataTable columns={COLUMNS}>
+      {tasks.map((task) => (
+        <TaskTableItem
+          key={task.taskId}
+          task={task}
+          onDelete={onDelete}
+          onEdit={onEdit}
+          onView={onView}
+        />
+      ))}
+    </DataTable>
   );
 }
 
